@@ -27,7 +27,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { VALIDATION_RULES, APP_CONFIG } from '../utils/constants'
 import toast from 'react-hot-toast'
 
-// Professional login page with comprehensive form validation and security
 const Login = () => {
   const theme = useTheme()
   const { login, loading } = useAuth()

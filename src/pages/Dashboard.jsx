@@ -14,6 +14,7 @@ import {
   TrendingUp as TrendingIcon,
   Analytics as AnalyticsIcon
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useApi } from '../hooks/useApi'
 import statsService from '../services/statsService'
@@ -28,6 +29,7 @@ import toast from 'react-hot-toast'
 // Provides role-based data visualization and quick access to key metrics
 const Dashboard = () => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const { user, hasRole } = useAuth()
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
@@ -91,9 +93,9 @@ const Dashboard = () => {
   }, [refetchStats])
 
   return (
-    <Box>
+        <Box>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
@@ -103,7 +105,7 @@ const Dashboard = () => {
               Here's what's happening with your {hasRole('admin') ? 'system' : 'account'} today.
             </Typography>
           </Box>
-          
+
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
@@ -133,47 +135,47 @@ const Dashboard = () => {
           }
         >
           Failed to load dashboard data. Please try refreshing.
-        </Alert>
-      )}
+            </Alert>
+          )}
 
       <LoadingOverlay loading={statsLoading && !stats}>
         <Grid container spacing={3}>
           {/* Statistics Cards */}
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Total Users"
+            <Grid item xs={12} sm={6} md={3}>
+              <StatCard
+                title="Total Users"
               value={formatNumber(stats.totalUsers)}
               growth={stats.usersGrowth}
               icon="users"
-              color="primary"
+                color="primary"
               subtitle={`${stats.recentStats?.todayUsers || 0} today`}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <StatCard
               title="Documents"
               value={formatNumber(stats.totalDocuments)}
               growth={stats.documentsGrowth}
               icon="documents"
-              color="secondary"
+                color="secondary"
               subtitle={`${stats.recentStats?.todayDocuments || 0} uploaded today`}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <StatCard
               title="News Articles"
               value={formatNumber(stats.totalNews)}
               growth={stats.newsGrowth}
               icon="news"
-              color="success"
+                color="success"
               subtitle={`${stats.recentStats?.todayNews || 0} published today`}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <StatCard
               title="Total Views"
               value={formatNumber(stats.totalViews)}
               growth={stats.viewsGrowth}
@@ -183,25 +185,25 @@ const Dashboard = () => {
             />
           </Grid>
 
-          {/* Activity Chart */}
-          <Grid item xs={12} lg={8}>
-            <ActivityChart
+            {/* Activity Chart */}
+            <Grid item xs={12} lg={8}>
+              <ActivityChart
               title="Activity Trends (Last 14 Days)"
               type="area"
               loading={refreshing}
-            />
-          </Grid>
+              />
+            </Grid>
 
-          {/* Recent Activity */}
-          <Grid item xs={12} lg={4}>
-            <RecentActivity
+            {/* Recent Activity */}
+            <Grid item xs={12} lg={4}>
+              <RecentActivity
               loading={refreshing}
               maxItems={6}
-            />
+              />
           </Grid>
 
           {/* Quick Actions */}
-          <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
@@ -221,7 +223,7 @@ const Dashboard = () => {
                             textTransform: 'none',
                             fontWeight: 500
                           }}
-                          onClick={() => window.location.href = '/news'}
+                          onClick={() => navigate('/news/create')}
                         >
                           Create News Article
                         </Button>
@@ -237,7 +239,7 @@ const Dashboard = () => {
                             textTransform: 'none',
                             fontWeight: 500
                           }}
-                          onClick={() => window.location.href = '/documents'}
+                          onClick={() => navigate('/documents/upload')}
                         >
                           Upload Document
                         </Button>
@@ -255,7 +257,7 @@ const Dashboard = () => {
                         textTransform: 'none',
                         fontWeight: 500
                       }}
-                      onClick={() => window.location.href = '/documents'}
+                      onClick={() => navigate('/documents')}
                     >
                       Browse Documents
                     </Button>
@@ -271,7 +273,7 @@ const Dashboard = () => {
                         textTransform: 'none',
                         fontWeight: 500
                       }}
-                      onClick={() => window.location.href = '/news'}
+                      onClick={() => navigate('/news')}
                     >
                       Read Latest News
                     </Button>
@@ -279,10 +281,10 @@ const Dashboard = () => {
                 </Grid>
               </CardContent>
             </Card>
-          </Grid>
+            </Grid>
 
           {/* System Status */}
-          <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -320,7 +322,7 @@ const Dashboard = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2">Database</Typography>
                     <Box
-                      sx={{
+                sx={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
@@ -337,7 +339,7 @@ const Dashboard = () => {
                       />
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
                         Connected
-                      </Typography>
+                </Typography>
                     </Box>
                   </Box>
                   
@@ -361,7 +363,7 @@ const Dashboard = () => {
                       />
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
                         Available
-                      </Typography>
+                </Typography>
                     </Box>
                   </Box>
                   
@@ -374,7 +376,7 @@ const Dashboard = () => {
                         textTransform: 'none',
                         alignSelf: 'flex-start'
                       }}
-                      onClick={() => window.location.href = '/admin'}
+                      onClick={() => navigate('/admin')}
                     >
                       View Admin Panel
                     </Button>
@@ -385,7 +387,7 @@ const Dashboard = () => {
           </Grid>
         </Grid>
       </LoadingOverlay>
-    </Box>
+        </Box>
   )
 }
 

@@ -196,11 +196,12 @@ const AppLayout = () => {
           flexGrow: 1,
           backgroundColor: theme.palette.background.default,
           minHeight: '100vh',
-          transition: theme.transitions.create('margin', {
+          transition: theme.transitions.create(['margin-left', 'width'], {
             easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
+            duration: theme.transitions.duration.enteringScreen,
           }),
           marginLeft: isMobile ? 0 : (sidebarOpen ? 0 : `-${sidebarWidth - collapsedSidebarWidth}px`),
+          width: isMobile ? '100%' : (sidebarOpen ? `calc(100% - ${sidebarWidth}px)` : `calc(100% - ${collapsedSidebarWidth}px)`),
         }}
       >
         {/* Toolbar spacer */}
