@@ -28,6 +28,7 @@ import {
   FilterList as FilterIcon,
   Article as NewsIcon
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { usePaginatedApi } from '../hooks/useApi'
 import newsService from '../services/newsService'
@@ -41,7 +42,8 @@ import toast from 'react-hot-toast'
 // Comprehensive news management page with filtering and CRUD operations
 const News = () => {
   const theme = useTheme()
-  const { hasRole } = useAuth()
+  const navigate = useNavigate()
+  const { hasRole, user } = useAuth()
   const [deleteDialog, setDeleteDialog] = useState({ open: false, news: null })
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
@@ -91,13 +93,11 @@ const News = () => {
   }, [sortBy, sortOrder, updateSort])
 
   const handleCreateNews = () => {
-    // Navigate to create news page or open create dialog
-    window.location.href = '/news/create'
+    navigate('/news/create')
   }
 
   const handleEditNews = (news) => {
-    // Navigate to edit news page
-    window.location.href = `/news/${news.id}/edit`
+    navigate(`/news/${news.id}/edit`)
   }
 
   const handleDeleteNews = (news) => {
@@ -354,6 +354,7 @@ const News = () => {
                   onDelete={handleDeleteNews}
                   onShare={handleShareNews}
                   showActions={hasRole(['admin', 'editor'])}
+                  canEdit={hasRole(['admin', 'editor']) && (hasRole('admin') || news.author_id === user?.id)}
                 />
               </Grid>
             ))}

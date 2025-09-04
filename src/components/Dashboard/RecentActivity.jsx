@@ -267,8 +267,8 @@ const RecentActivity = ({ activities = [], loading = false, maxItems = 8 }) => {
                   </Typography>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }} component="div">
+                    <Typography variant="caption" color="text.secondary" component="span">
                       {formatRelativeTime(activity.timestamp)}
                     </Typography>
                     {activity.category && (
@@ -287,6 +287,9 @@ const RecentActivity = ({ activities = [], loading = false, maxItems = 8 }) => {
                     )}
                   </Box>
                 }
+                secondaryTypographyProps={{
+                  component: 'div'
+                }}
               />
             </ListItem>
           ))}

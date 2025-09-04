@@ -43,7 +43,10 @@ import {
   PersonAdd as AddUserIcon,
   AdminPanelSettings as AdminIcon,
   Lock as SuspendIcon,
-  CheckCircle as ActivateIcon
+  CheckCircle as ActivateIcon,
+  Article as ArticleIcon,
+  Publish as PublishIcon,
+  Visibility as ViewIcon
 } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 import { useApi, usePaginatedApi } from '../hooks/useApi'
@@ -64,6 +67,8 @@ const Admin = () => {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, user: null })
   const [menuAnchor, setMenuAnchor] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
+  const [articleMenuAnchor, setArticleMenuAnchor] = useState(null)
+  const [selectedArticle, setSelectedArticle] = useState(null)
 
   // Only admins can access this page
   if (!hasRole('admin')) {
@@ -98,6 +103,21 @@ const Admin = () => {
     goToPage,
     refetch: refetchUsers
   } = usePaginatedApi(adminService.getUsers, {
+    initialPage: 1,
+    pageSize: 10
+  })
+
+  // Fetch articles with pagination
+  const {
+    data: articlesData,
+    items: articlesList,
+    loading: articlesLoading,
+    page: articlesPage,
+    totalPages: articlesTotalPages,
+    totalItems: articlesTotalItems,
+    goToPage: goToArticlesPage,
+    refetch: refetchArticles
+  } = usePaginatedApi(adminService.getArticles, {
     initialPage: 1,
     pageSize: 10
   })
@@ -194,6 +214,47 @@ const Admin = () => {
     }
   }
 
+  const handleArticleAction = (action, article) => {
+    setSelectedArticle(article)
+    setArticleMenuAnchor(null)
+
+    switch (action) {
+      case 'approve':
+        handleApproveArticle(article)
+        break
+      case 'reject':
+        handleRejectArticle(article)
+        break
+      case 'view':
+        window.open(`/news/${article.id}`, '_blank')
+        break
+      default:
+        break
+    }
+  }
+
+  const handleApproveArticle = async (article) => {
+    try {
+      await adminService.approveArticle(article.id)
+      toast.success(`Article "${article.title}" has been approved and published`)
+      refetchArticles()
+    } catch (error) {
+      toast.error('Failed to approve article')
+      console.error('Approve error:', error)
+    }
+  }
+
+  const handleRejectArticle = async (article) => {
+    try {
+      await adminService.rejectArticle(article.id)
+      toast.success(`Article "${article.title}" has been rejected`)
+      refetchArticles()
+    } catch (error) {
+      toast.error('Failed to reject article')
+      console.error('Reject error:', error)
+    }
+  }
+
   const getUserStatusColor = (status) => {
     switch (status) {
       case 'active':
@@ -228,6 +289,10 @@ const Admin = () => {
     {
       label: 'Users',
       icon: <UsersIcon />
+    },
+    {
+      label: 'Articles',
+      icon: <ArticleIcon />
     },
     {
       label: 'Settings',
@@ -363,6 +428,120 @@ const Admin = () => {
         </Box>
       )}
 
+      {/* Articles Tab */}
+      {activeTab === 2 && (
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h6">
+              Article Management ({articlesTotalItems} articles)
+            </Typography>
+          </Box>
+
+          <LoadingOverlay loading={articlesLoading}>
+            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Author</TableCell>
+                    <TableCell>Category</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Created</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {articlesList.map((article) => (
+                    <TableRow key={article.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <ArticleIcon 
+                            sx={{ 
+                              fontSize: 20,
+                              color: theme.palette.text.secondary
+                            }} 
+                          />
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {article.title}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {article.excerpt?.substring(0, 50)}...
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AdminIcon 
+                            sx={{ 
+                              fontSize: 16,
+                              color: theme.palette.text.secondary
+                            }} 
+                          />
+                          {article.author?.name || 'Unknown'}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={article.category}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={article.status}
+                          size="small"
+                          color={getUserStatusColor(article.status)}
+                          sx={{ textTransform: 'capitalize' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {formatRelativeTime(article.created_at)}
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          onClick={(e) => {
+                            setArticleMenuAnchor(e.currentTarget)
+                            setSelectedArticle(article)
+                          }}
+                        >
+                          <MoreIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {articlesTotalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button
+                  disabled={articlesPage === 1}
+                  onClick={() => goToArticlesPage(articlesPage - 1)}
+                  sx={{ mr: 1 }}
+                >
+                  Previous
+                </Button>
+                <Typography sx={{ mx: 2, alignSelf: 'center' }}>
+                  Page {articlesPage} of {articlesTotalPages}
+                </Typography>
+                <Button
+                  disabled={articlesPage === articlesTotalPages}
+                  onClick={() => goToArticlesPage(articlesPage + 1)}
+                  sx={{ ml: 1 }}
+                >
+                  Next
+                </Button>
+              </Box>
+            )}
+          </LoadingOverlay>
+        </Box>
+      )}
+
       {/* Users Tab */}
       {activeTab === 1 && (
         <Box>
@@ -468,7 +647,7 @@ const Admin = () => {
       )}
 
       {/* Settings Tab */}
-      {activeTab === 2 && (
+      {activeTab === 3 && (
         <Box>
           <Typography variant="h6" gutterBottom>
             System Settings
@@ -480,7 +659,7 @@ const Admin = () => {
       )}
 
       {/* Security Tab */}
-      {activeTab === 3 && (
+      {activeTab === 4 && (
         <Box>
           <Typography variant="h6" gutterBottom>
             Security & Access Control
@@ -529,6 +708,41 @@ const Admin = () => {
           </ListItemIcon>
           <ListItemText>Delete User</ListItemText>
         </MenuItem>
+      </Menu>
+
+      {/* Article Actions Menu */}
+      <Menu
+        anchorEl={articleMenuAnchor}
+        open={Boolean(articleMenuAnchor)}
+        onClose={() => setArticleMenuAnchor(null)}
+      >
+        <MenuItem onClick={() => handleArticleAction('view', selectedArticle)}>
+          <ListItemIcon>
+            <ViewIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View Article</ListItemText>
+        </MenuItem>
+
+        {selectedArticle?.status === 'pending' && (
+          <MenuItem onClick={() => handleArticleAction('approve', selectedArticle)}>
+            <ListItemIcon>
+              <PublishIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Approve & Publish</ListItemText>
+          </MenuItem>
+        )}
+
+        {selectedArticle?.status === 'pending' && (
+          <MenuItem 
+            onClick={() => handleArticleAction('reject', selectedArticle)}
+            sx={{ color: 'error.main' }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Reject Article</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
 
       {/* User Dialog */}

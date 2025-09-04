@@ -58,7 +58,7 @@ const newsService = {
 
   // Create new news article
   createNews: async (newsData) => {
-    const { title, content, excerpt, category, status = 'draft', featured_image } = newsData
+    const { title, body, content, excerpt, category, status = 'draft', featured_image, image_url } = newsData
 
     // Client-side validation
     const errors = {}
@@ -67,8 +67,9 @@ const newsService = {
       errors.title = ['Title must be at least 3 characters long']
     }
     
-    if (!content || content.trim().length < 10) {
-      errors.content = ['Content must be at least 10 characters long']
+    const articleContent = body || content
+    if (!articleContent || articleContent.trim().length < 10) {
+      errors.body = ['Content must be at least 10 characters long']
     }
     
     if (!category) {
@@ -87,11 +88,11 @@ const newsService = {
     try {
       const response = await api.post('/news', {
         title: title.trim(),
-        content: content.trim(),
+        body: articleContent.trim(),
         excerpt: excerpt?.trim() || '',
         category,
         status,
-        featured_image
+        image_url: featured_image || image_url
       })
 
       // Clear news cache after creation
@@ -109,7 +110,7 @@ const newsService = {
 
   // Update existing news article
   updateNews: async (id, newsData) => {
-    const { title, content, excerpt, category, status, featured_image } = newsData
+    const { title, body, content, excerpt, category, status, featured_image, image_url } = newsData
 
     // Client-side validation
     const errors = {}
@@ -118,8 +119,9 @@ const newsService = {
       errors.title = ['Title must be at least 3 characters long']
     }
     
-    if (content !== undefined && (!content || content.trim().length < 10)) {
-      errors.content = ['Content must be at least 10 characters long']
+    const articleContent = body || content
+    if (articleContent !== undefined && (!articleContent || articleContent.trim().length < 10)) {
+      errors.body = ['Content must be at least 10 characters long']
     }
     
     if (category !== undefined && !category) {
@@ -139,11 +141,13 @@ const newsService = {
       const updateData = {}
       
       if (title !== undefined) updateData.title = title.trim()
-      if (content !== undefined) updateData.content = content.trim()
+      if (articleContent !== undefined) updateData.body = articleContent.trim()
       if (excerpt !== undefined) updateData.excerpt = excerpt.trim()
       if (category !== undefined) updateData.category = category
       if (status !== undefined) updateData.status = status
-      if (featured_image !== undefined) updateData.featured_image = featured_image
+      if (featured_image !== undefined || image_url !== undefined) {
+        updateData.image_url = featured_image || image_url
+      }
 
       const response = await api.put(`/news/${id}`, updateData)
 

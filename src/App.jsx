@@ -13,10 +13,17 @@ const Login = lazy(() => import('./pages/Login'))
 const Signup = lazy(() => import('./pages/Signup'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const News = lazy(() => import('./pages/News'))
+const NewsCreate = lazy(() => import('./pages/NewsCreate'))
+const NewsEdit = lazy(() => import('./pages/NewsEdit'))
+const NewsView = lazy(() => import('./pages/NewsView'))
 const NewsDetail = lazy(() => import('./pages/NewsDetail'))
 const Documents = lazy(() => import('./pages/Documents'))
 const Resources = lazy(() => import('./pages/Resources'))
 const Admin = lazy(() => import('./pages/Admin'))
+const UserManagement = lazy(() => import('./pages/UserManagement'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Help = lazy(() => import('./pages/Help'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Public route component that redirects authenticated users
@@ -133,6 +140,9 @@ const AppContent = () => {
               
               {/* News routes */}
               <Route path="news" element={<News />} />
+              <Route path="news/create" element={<NewsCreate />} />
+              <Route path="news/:id/edit" element={<NewsEdit />} />
+              <Route path="news/:id/view" element={<NewsView />} />
               <Route path="news/:id" element={<NewsDetail />} />
               
               {/* Documents route */}
@@ -150,6 +160,26 @@ const AppContent = () => {
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="admin/users" 
+                element={
+                  <ProtectedRoute requiredRoles={['admin']}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="admin/analytics" 
+                element={
+                  <ProtectedRoute requiredRoles={['admin']}>
+                    <Analytics />
+                  </ProtectedRoute>
+                } 
+              />
+
+              {/* Settings and Help routes */}
+              <Route path="settings" element={<Settings />} />
+              <Route path="help" element={<Help />} />
             </Route>
             
             {/* 404 page */}

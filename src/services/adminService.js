@@ -465,6 +465,81 @@ const adminService = {
     } catch (error) {
       throw error
     }
+  },
+
+  // Article management methods
+  getArticles: async (params = {}) => {
+    const {
+      page = 1,
+      per_page = PAGINATION_CONFIG.defaultPageSize,
+      search = '',
+      status = '',
+      category = '',
+      author_id = '',
+      sort_by = 'created_at',
+      sort_order = 'desc'
+    } = params
+
+    try {
+      const response = await api.getWithCache('/admin/articles', {
+        params: {
+          page,
+          per_page,
+          search,
+          status,
+          category,
+          author_id,
+          sort_by,
+          sort_order
+        },
+        cacheDuration: 2 * 60 * 1000 // 2 minutes cache
+      })
+
+      return {
+        success: true,
+        data: response.data
+      }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  approveArticle: async (id) => {
+    try {
+      const response = await api.patch(`/admin/articles/${id}/approve`)
+
+      // Clear articles cache after approval
+      api.clearCache('admin/articles')
+      api.clearCache('news')
+
+      return {
+        success: true,
+        data: response.data,
+        message: 'Article approved and published successfully'
+      }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  rejectArticle: async (id, reason = '') => {
+    try {
+      const response = await api.patch(`/admin/articles/${id}/reject`, {
+        reason: reason.trim()
+      })
+
+      // Clear articles cache after rejection
+      api.clearCache('admin/articles')
+      api.clearCache('news')
+
+      return {
+        success: true,
+        data: response.data,
+        message: 'Article rejected successfully'
+      }
+    } catch (error) {
+      throw error
+    }
   }
 }
 

@@ -400,4 +400,5 @@ api.cancelAll = () => {
 // EXPORT API CLIENT
 // =============================================================================
 
+export { api }
 export default api

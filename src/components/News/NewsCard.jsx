@@ -36,6 +36,7 @@ const NewsCard = ({
   onDelete, 
   onShare,
   showActions = true,
+  canEdit = true,
   variant = 'default' // 'default', 'compact', 'featured'
 }) => {
   const theme = useTheme()
@@ -57,7 +58,6 @@ const NewsCard = ({
     views_count = 0
   } = news
 
-  const canEdit = hasRole(['admin', 'editor'])
   const canDelete = hasRole(['admin', 'editor'])
 
   const handleMenuOpen = (event) => {
@@ -70,7 +70,7 @@ const NewsCard = ({
   }
 
   const handleView = () => {
-    navigate(`/news/${id}`)
+    navigate(`/news/${id}/view`)
   }
 
   const handleEdit = (event) => {

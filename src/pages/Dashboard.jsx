@@ -46,25 +46,55 @@ const Dashboard = () => {
     cacheDuration: 5 * 60 * 1000 // 5 minutes
   })
 
-  // Sample dashboard data for development/demo
-  const sampleStats = {
-    totalUsers: 1247,
-    totalDocuments: 856,
-    totalNews: 124,
-    totalViews: 15632,
-    usersGrowth: 12.5,
-    documentsGrowth: 8.3,
-    newsGrowth: 15.7,
-    viewsGrowth: 22.1,
-    recentStats: {
-      todayUsers: 89,
-      todayDocuments: 12,
-      todayNews: 3,
-      todayViews: 234
+  // Sample dashboard data for development/demo - role-based
+  const getSampleStats = () => {
+    if (hasRole('admin')) {
+      return {
+        totalUsers: 1247,
+        totalDocuments: 856,
+        totalNews: 124,
+        totalViews: 15632,
+        pendingArticles: 8,
+        usersGrowth: 12.5,
+        documentsGrowth: 8.3,
+        newsGrowth: 15.7,
+        viewsGrowth: 22.1,
+        recentStats: {
+          todayUsers: 89,
+          todayDocuments: 12,
+          todayNews: 3,
+          todayViews: 234,
+          pendingReviews: 3
+        }
+      }
+    } else if (hasRole('editor')) {
+      return {
+        myArticles: 15,
+        publishedArticles: 12,
+        draftArticles: 3,
+        pendingArticles: 2,
+        totalViews: 3456,
+        recentStats: {
+          todayViews: 45,
+          newComments: 2,
+          pendingReviews: 2
+        }
+      }
+    } else {
+      return {
+        documentsAccessed: 23,
+        newsRead: 45,
+        bookmarks: 8,
+        recentActivity: 12,
+        recentStats: {
+          todayDownloads: 3,
+          todayReads: 5
+        }
+      }
     }
   }
 
-  const stats = dashboardStats || sampleStats
+  const stats = dashboardStats || getSampleStats()
 
   // Handle manual refresh
   const handleRefresh = async () => {
@@ -140,50 +170,141 @@ const Dashboard = () => {
 
       <LoadingOverlay loading={statsLoading && !stats}>
         <Grid container spacing={3}>
-          {/* Statistics Cards */}
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-                title="Total Users"
-              value={formatNumber(stats.totalUsers)}
-              growth={stats.usersGrowth}
-              icon="users"
-                color="primary"
-              subtitle={`${stats.recentStats?.todayUsers || 0} today`}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-              title="Documents"
-              value={formatNumber(stats.totalDocuments)}
-              growth={stats.documentsGrowth}
-              icon="documents"
-                color="secondary"
-              subtitle={`${stats.recentStats?.todayDocuments || 0} uploaded today`}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-              title="News Articles"
-              value={formatNumber(stats.totalNews)}
-              growth={stats.newsGrowth}
-              icon="news"
-                color="success"
-              subtitle={`${stats.recentStats?.todayNews || 0} published today`}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-              title="Total Views"
-              value={formatNumber(stats.totalViews)}
-              growth={stats.viewsGrowth}
-              icon="views"
-              color="info"
-              subtitle={`${stats.recentStats?.todayViews || 0} today`}
-            />
-          </Grid>
+          {/* Statistics Cards - Role-based */}
+          {hasRole('admin') && (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Total Users"
+                  value={formatNumber(stats.totalUsers)}
+                  growth={stats.usersGrowth}
+                  icon="users"
+                  color="primary"
+                  subtitle={`${stats.recentStats?.todayUsers || 0} today`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Documents"
+                  value={formatNumber(stats.totalDocuments)}
+                  growth={stats.documentsGrowth}
+                  icon="documents"
+                  color="secondary"
+                  subtitle={`${stats.recentStats?.todayDocuments || 0} uploaded today`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="News Articles"
+                  value={formatNumber(stats.totalNews)}
+                  growth={stats.newsGrowth}
+                  icon="news"
+                  color="success"
+                  subtitle={`${stats.recentStats?.todayNews || 0} published today`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Pending Reviews"
+                  value={formatNumber(stats.pendingArticles)}
+                  icon="pending"
+                  color="warning"
+                  subtitle={`${stats.recentStats?.pendingReviews || 0} need review`}
+                />
+              </Grid>
+            </>
+          )}
+
+          {hasRole('editor') && (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="My Articles"
+                  value={formatNumber(stats.myArticles)}
+                  icon="articles"
+                  color="primary"
+                  subtitle={`${stats.publishedArticles} published`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Draft Articles"
+                  value={formatNumber(stats.draftArticles)}
+                  icon="draft"
+                  color="warning"
+                  subtitle="In progress"
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Pending Review"
+                  value={formatNumber(stats.pendingArticles)}
+                  icon="pending"
+                  color="info"
+                  subtitle="Awaiting approval"
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Total Views"
+                  value={formatNumber(stats.totalViews)}
+                  icon="views"
+                  color="success"
+                  subtitle={`${stats.recentStats?.todayViews || 0} today`}
+                />
+              </Grid>
+            </>
+          )}
+
+          {hasRole('user') && (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Documents Accessed"
+                  value={formatNumber(stats.documentsAccessed)}
+                  icon="documents"
+                  color="primary"
+                  subtitle={`${stats.recentStats?.todayDownloads || 0} downloaded today`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Articles Read"
+                  value={formatNumber(stats.newsRead)}
+                  icon="news"
+                  color="success"
+                  subtitle={`${stats.recentStats?.todayReads || 0} read today`}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Bookmarks"
+                  value={formatNumber(stats.bookmarks)}
+                  icon="bookmark"
+                  color="info"
+                  subtitle="Saved items"
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Recent Activity"
+                  value={formatNumber(stats.recentActivity)}
+                  icon="activity"
+                  color="secondary"
+                  subtitle="This week"
+                />
+              </Grid>
+            </>
+          )}
 
             {/* Activity Chart */}
             <Grid item xs={12} lg={8}>
@@ -202,7 +323,7 @@ const Dashboard = () => {
               />
           </Grid>
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Role-based */}
             <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
@@ -211,6 +332,42 @@ const Dashboard = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
+                  {hasRole('admin') && (
+                    <>
+                      <Grid item xs={12} sm={6}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          sx={{ 
+                            py: 2, 
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 500
+                          }}
+                          onClick={() => navigate('/admin')}
+                        >
+                          Manage Users
+                        </Button>
+                      </Grid>
+                      
+                      <Grid item xs={12} sm={6}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          sx={{ 
+                            py: 2, 
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 500
+                          }}
+                          onClick={() => navigate('/news?status=pending')}
+                        >
+                          Review Articles
+                        </Button>
+                      </Grid>
+                    </>
+                  )}
+
                   {hasRole(['admin', 'editor']) && (
                     <>
                       <Grid item xs={12} sm={6}>
