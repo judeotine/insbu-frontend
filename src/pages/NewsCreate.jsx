@@ -105,11 +105,11 @@ const NewsCreate = () => {
     try {
       const newsData = {
         title: formData.title.trim(),
-        content: formData.body.trim(),
-        excerpt: formData.excerpt.trim() || null,
+        body: formData.body.trim(),
+        excerpt: formData.excerpt.trim() || '',
         category: formData.category,
         status,
-        featured_image: formData.image_url || null
+        image_url: formData.image_url || null
       }
 
       const response = await newsService.createNews(newsData)
